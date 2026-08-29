@@ -27,7 +27,12 @@ function initDropdown(triggerId, menuId, selectedId) {
             if (selected) {
                 const label = item.dataset.value ||
                     (item.dataset.sort.charAt(0).toUpperCase() + item.dataset.sort.slice(1));
-                selected.textContent = label;
+                const img = item.querySelector('.league-logo');
+                if (img) {
+                    selected.innerHTML = `<img class="league-logo" src="${img.src}" alt="${label}" onerror="this.style.display='none'"> ${label}`;
+                } else {
+                    selected.textContent = label;
+                }
             }
             menu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');

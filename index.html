@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sports Calendar</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css" integrity="sha512-kJlvECunwXftkPwyvHbclArO8wszgBGisiLeuDFwNM8ws+wKIw0sv1os3ClWZOcrEB2eRXULYUsm8OVRGJKwGA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   </head>
   <body>
     <main class="app-wrapper">
@@ -16,7 +17,7 @@
 
         <hr class="divider" />
 
-        <button class="nav-btn" id="btn-football">⚽ Football</button>
+        <button class="nav-btn" id="btn-football"><i class="ri-football-line"></i> Football</button>
       </aside>
 
       <!-- Right: Main Large Container -->
@@ -31,7 +32,10 @@
                 id="dropdown-trigger"
                 aria-expanded="false"
               >
-                <span id="dropdown-selected">All Leagues</span>
+                <span id="dropdown-selected">
+                  <img class="league-logo" src="logos/all-leagues.png" alt="All Leagues" onerror="this.style.display='none'">
+                  All Leagues
+                </span>
                 <svg
                   class="dropdown-chevron"
                   width="12"
@@ -46,16 +50,36 @@
               </button>
               <div class="dropdown-menu" id="dropdown-menu">
                 <div class="dropdown-item active" data-value="All Leagues">
+                  <img class="league-logo" src="logos/all-leagues.png" alt="All Leagues" onerror="this.style.display='none'">
                   All Leagues
                 </div>
                 <div class="dropdown-item" data-value="FIFA World Cup">
+                  <img class="league-logo" src="logos/fifa-world-cup.png" alt="FIFA World Cup" onerror="this.style.display='none'">
                   FIFA World Cup
                 </div>
                 <div class="dropdown-item" data-value="UEFA Champions League">
+                  <img class="league-logo" src="logos/ucl.png" alt="UEFA Champions League" onerror="this.style.display='none'">
                   UEFA Champions League
                 </div>
                 <div class="dropdown-item" data-value="Premier League">
+                  <img class="league-logo" src="logos/premier-league.png" alt="Premier League" onerror="this.style.display='none'">
                   Premier League
+                </div>
+                <div class="dropdown-item" data-value="LaLiga">
+                  <img class="league-logo" src="logos/laliga.png" alt="LaLiga" onerror="this.style.display='none'">
+                  LaLiga
+                </div>
+                <div class="dropdown-item" data-value="Serie A">
+                  <img class="league-logo" src="logos/serie-a.png" alt="Serie A" onerror="this.style.display='none'">
+                  Serie A
+                </div>
+                <div class="dropdown-item" data-value="Bundesliga">
+                  <img class="league-logo" src="logos/bundesliga.png" alt="Bundesliga" onerror="this.style.display='none'">
+                  Bundesliga
+                </div>
+                <div class="dropdown-item" data-value="Ligue 1">
+                  <img class="league-logo" src="logos/ligue-1.png" alt="Ligue 1" onerror="this.style.display='none'">
+                  Ligue 1
                 </div>
               </div>
             </div>
