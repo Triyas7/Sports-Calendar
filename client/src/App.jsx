@@ -3,17 +3,17 @@ import Sidebar from "./components/Sidebar";
 import FilterBar from "./components/FilterBar";
 import MatchList from "./components/MatchList";
 import { useCollection } from "./hooks/useCollection";
-import { LEAGUE_CONFIG } from "./utils/constants";
-import { API_BASE_URL } from "./utils/constants";
+import { LEAGUE_CONFIG, API_BASE_URL } from "./utils/constants";
 import "./App.css";
 
 /**
  * App — Root layout: Sidebar + Main content area (FilterBar + MatchList).
- * Manages global state for tab switching, league selection, and data fetching.
+ * Manages global state for tab switching, league selection, match filtering, and data fetching.
  */
 export default function App() {
   const [currentTab, setCurrentTab] = useState("football");
   const [selectedLeague, setSelectedLeague] = useState("All Leagues");
+  const [matchFilter, setMatchFilter] = useState("all"); // "all" | "upcoming" | "recent"
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -22,7 +22,7 @@ export default function App() {
   const { toggleMatch, isInCollection, count, getCollectionMatches } = useCollection();
 
   // ── Fetch matches from Express proxy ──
-  const fetchMatches = useCallback(async (leagueName) => {
+  const fetchMatches = useCallback(async (leagueName, filter) => {
     const leagueInfo = LEAGUE_CONFIG[leagueName];
     const leagueCode = leagueInfo ? leagueInfo.code : "ALL";
 
@@ -30,7 +30,7 @@ export default function App() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/matches?league=${leagueCode}`);
+      const res = await fetch(`${API_BASE_URL}/api/matches?league=${leagueCode}&filter=${filter}`);
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || `Server error: ${res.status}`);
@@ -46,12 +46,12 @@ export default function App() {
     }
   }, []);
 
-  // ── Fetch on league change (football tab) ──
+  // ── Fetch on league or filter change (football tab) ──
   useEffect(() => {
     if (currentTab === "football") {
-      fetchMatches(selectedLeague);
+      fetchMatches(selectedLeague, matchFilter);
     }
-  }, [currentTab, selectedLeague, fetchMatches]);
+  }, [currentTab, selectedLeague, matchFilter, fetchMatches]);
 
   // ── Determine which matches to display ──
   const displayMatches =
@@ -100,6 +100,8 @@ export default function App() {
             <FilterBar
               selectedLeague={selectedLeague}
               onLeagueChange={handleLeagueChange}
+              matchFilter={matchFilter}
+              onFilterChange={setMatchFilter}
             />
             <hr className="main-divider" />
           </>

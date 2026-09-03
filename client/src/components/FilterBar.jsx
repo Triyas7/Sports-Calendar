@@ -4,7 +4,7 @@ import { LEAGUE_CONFIG, LEAGUE_NAMES } from "../utils/constants";
 /**
  * FilterBar — League selector dropdown with glassmorphism styling.
  */
-export default function FilterBar({ selectedLeague, onLeagueChange }) {
+export default function FilterBar({ selectedLeague, onLeagueChange, matchFilter = "all", onFilterChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -80,6 +80,30 @@ export default function FilterBar({ selectedLeague, onLeagueChange }) {
           </div>
         </div>
       </div>
+
+      {/* Match Filter: All, Future 20, Recent */}
+      {onFilterChange && (
+        <div className="match-filter-tabs">
+          <button
+            className={`match-filter-btn ${matchFilter === "all" ? "active" : ""}`}
+            onClick={() => onFilterChange("all")}
+          >
+            All
+          </button>
+          <button
+            className={`match-filter-btn ${matchFilter === "upcoming" ? "active" : ""}`}
+            onClick={() => onFilterChange("upcoming")}
+          >
+            📅 Future 20
+          </button>
+          <button
+            className={`match-filter-btn ${matchFilter === "recent" ? "active" : ""}`}
+            onClick={() => onFilterChange("recent")}
+          >
+            ⚡ Recent Results
+          </button>
+        </div>
+      )}
     </div>
   );
 }

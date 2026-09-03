@@ -46,7 +46,11 @@ export default function MatchCard({ match, isSaved, onToggle }) {
           )}
           {match.homeTeam}
         </span>
-        <span className="vs">vs</span>
+        {match.status === "FINISHED" && match.scoreStr ? (
+          <span className="score-pill">{match.scoreStr}</span>
+        ) : (
+          <span className="vs">vs</span>
+        )}
         <span className="team">
           {match.awayCrest && (
             <img
@@ -61,7 +65,13 @@ export default function MatchCard({ match, isSaved, onToggle }) {
       </span>
 
       <span className="td-time">
-        {isLive ? <span className="live-indicator">● LIVE</span> : formattedTime}
+        {isLive ? (
+          <span className="live-indicator">● LIVE</span>
+        ) : match.status === "FINISHED" ? (
+          <span className="finished-indicator">FT</span>
+        ) : (
+          formattedTime
+        )}
       </span>
 
       <span className="col-add">
