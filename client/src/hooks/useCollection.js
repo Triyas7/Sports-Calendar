@@ -32,6 +32,13 @@ export function useCollection() {
     });
   }, []);
 
+  const addMatch = useCallback((match) => {
+    setCollection((prev) => ({
+      ...prev,
+      [match.id]: match,
+    }));
+  }, []);
+
   const isInCollection = useCallback(
     (matchId) => !!collection[matchId],
     [collection]
@@ -45,5 +52,5 @@ export function useCollection() {
     );
   }, [collection]);
 
-  return { collection, toggleMatch, isInCollection, count, getCollectionMatches };
+  return { collection, toggleMatch, addMatch, isInCollection, count, getCollectionMatches };
 }

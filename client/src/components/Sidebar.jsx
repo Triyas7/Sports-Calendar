@@ -21,6 +21,18 @@ export default function Sidebar({ currentTab, onTabChange, collectionCount, isMo
         <h2 className="options-title">Options</h2>
 
         <button
+          className={`nav-btn ${currentTab === "creator" ? "active" : ""}`}
+          id="btn-creator"
+          onClick={() => {
+            onTabChange("creator");
+            onMobileClose();
+          }}
+        >
+          <i className="ri-add-circle-line" />
+          Match Creator
+        </button>
+
+        <button
           className={`nav-btn ${currentTab === "collection" ? "active" : ""}`}
           id="btn-collection"
           onClick={() => {
@@ -33,20 +45,6 @@ export default function Sidebar({ currentTab, onTabChange, collectionCount, isMo
           <span className="badge-count" id="collection-count">
             {collectionCount}
           </span>
-        </button>
-
-        <hr className="divider" />
-
-        <button
-          className={`nav-btn ${currentTab === "football" ? "active" : ""}`}
-          id="btn-football"
-          onClick={() => {
-            onTabChange("football");
-            onMobileClose();
-          }}
-        >
-          <i className="ri-football-line" />
-          Football
         </button>
       </aside>
     </>
