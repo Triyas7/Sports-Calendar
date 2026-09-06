@@ -7,16 +7,17 @@ const FOTMOB_LOGO = (id) =>
   `https://images.fotmob.com/image_resources/logo/teamlogo/${id}.png`;
 
 export const LEAGUES_LIST = [
+  { name: "All Leagues", code: "ALL", icon: "/logos/all-leagues.svg" },
   { name: "Premier League", code: 47, icon: "/logos/premier-league.png" },
   { name: "LaLiga", code: 87, icon: "/logos/laliga.png" },
   { name: "Serie A", code: 55, icon: "/logos/serie-a.png" },
   { name: "Bundesliga", code: 54, icon: "/logos/bundesliga.png" },
   { name: "Ligue 1", code: 53, icon: "/logos/ligue-1.png" },
   { name: "UEFA Champions League", code: 42, icon: "/logos/ucl.png" },
-  { name: "UEFA Europa League", code: 73, icon: "https://images.fotmob.com/image_resources/logo/leaguelogo/dark/73.png" },
+  { name: "UEFA Europa League", code: 73, icon: "/logos/europa-league.png" },
   { name: "FIFA World Cup", code: 77, icon: "/logos/fifa-world-cup.png" },
-  { name: "UEFA Euro", code: 50, icon: "https://images.fotmob.com/image_resources/logo/leaguelogo/dark/50.png" },
-  { name: "Copa America", code: 44, icon: "https://images.fotmob.com/image_resources/logo/leaguelogo/dark/44.png" },
+  { name: "UEFA Euro", code: 50, icon: "/logos/uefa-euro.png" },
+  { name: "Copa America", code: 44, icon: "/logos/copa-america.png" },
 ];
 
 export const TEAMS_BY_LEAGUE = {
@@ -218,7 +219,21 @@ export const TEAMS_BY_LEAGUE = {
 
 /**
  * Returns teams for the specified league name.
+ * If "All Leagues" is selected, returns a deduplicated list of all clubs and national teams.
  */
 export function getTeamsForLeague(leagueName) {
+  if (leagueName === "All Leagues") {
+    const seen = new Set();
+    const all = [];
+    Object.values(TEAMS_BY_LEAGUE).forEach((teamList) => {
+      teamList.forEach((team) => {
+        if (!seen.has(team.id)) {
+          seen.add(team.id);
+          all.push(team);
+        }
+      });
+    });
+    return all.sort((a, b) => a.name.localeCompare(b.name));
+  }
   return TEAMS_BY_LEAGUE[leagueName] || TEAMS_BY_LEAGUE["Premier League"];
 }

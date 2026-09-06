@@ -1182,11 +1182,17 @@ body {
   gap: 14px;
 }
 
-.league-trigger-logo {
-  width: 28px;
-  height: 28px;
+.league-trigger-logo,
+.league-logo {
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  background: #ffffff;
+  border-radius: 50%;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  display: block;
 }
 
 .league-trigger-title {
@@ -1250,9 +1256,15 @@ body {
 }
 
 .league-option-logo {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
+  padding: 3.5px;
+  background: #ffffff;
+  border-radius: 50%;
   object-fit: contain;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+  display: block;
 }
 
 /* Flow Indicator (Wireframe arrows) */
@@ -1569,9 +1581,15 @@ body {
 }
 
 .preview-league-logo {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
+  padding: 3px;
+  background: #ffffff;
+  border-radius: 50%;
   object-fit: contain;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+  display: block;
 }
 
 .preview-teams-layout {
@@ -1670,15 +1688,24 @@ body {
   font-size: 1.3rem;
 }
 
-/* Mobile responsive adjustments */
+/* ── Tablet & Mobile Responsive Adjustments (≤ 768px) ── */
 @media (max-width: 768px) {
+  .match-creator-wrapper {
+    padding: 0 0 30px;
+    width: 100%;
+  }
+
   .creator-card {
-    padding: 24px 18px;
+    padding: 22px 16px;
     border-radius: 16px;
   }
 
   .creator-heading {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
+  }
+
+  .creator-subheading {
+    font-size: 0.85rem;
   }
 
   .creator-teams-row {
@@ -1687,10 +1714,10 @@ body {
   }
 
   .creator-vs-badge {
-    margin: 0 auto;
-    width: 36px;
-    height: 36px;
-    font-size: 0.75rem;
+    margin: 4px auto;
+    width: 38px;
+    height: 38px;
+    font-size: 0.78rem;
   }
 
   .creator-datetime-row {
@@ -1702,11 +1729,96 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 12px;
+  }
+
+  .preview-team {
+    justify-content: center;
+    width: 100%;
   }
 
   .preview-team:last-child {
     flex-direction: row;
     text-align: center;
+    justify-content: center;
+  }
+
+  .creator-toast {
+    top: auto;
+    bottom: 20px;
+    left: 16px;
+    right: 16px;
+    padding: 12px 16px;
+    font-size: 0.86rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .toast-action-btn {
+    margin-left: 0;
+    margin-top: 6px;
+    width: 100%;
   }
 }
+
+/* ── Small Phone Adjustments (≤ 480px) ── */
+@media (max-width: 480px) {
+  .creator-card {
+    padding: 18px 12px;
+    border-radius: 14px;
+  }
+
+  .creator-badge {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+
+  .creator-heading {
+    font-size: 1.2rem;
+  }
+
+  .league-dropdown-trigger {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+  }
+
+  .league-trigger-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .team-dropdown-trigger {
+    padding: 10px 14px;
+  }
+
+  .team-trigger-name {
+    font-size: 0.9rem;
+  }
+
+  .team-trigger-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .creator-dt-input {
+    padding: 12px 14px 12px 40px;
+    font-size: 0.92rem;
+  }
+
+  .creator-submit-btn {
+    padding: 14px 20px;
+    font-size: 0.98rem;
+  }
+
+  .preview-team-name {
+    font-size: 0.92rem;
+  }
+
+  .preview-team-crest {
+    width: 30px;
+    height: 30px;
+  }
+}
+
 
