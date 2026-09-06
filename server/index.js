@@ -20,17 +20,47 @@ if (!API_FOOTBALL_KEY) {
   console.warn("⚠️ Warning: RAPIDAPI_KEY is not defined in server/.env!");
 }
 
-// League IDs for free-api-live-football-data
+// League IDs for free-api-live-football-data (verified via /football-get-all-leagues)
+const { FALLBACK_MATCHES } = require("./mockData");
+
 const LEAGUE_MAP = {
   "ALL": "All Leagues",
+  // --- Club Leagues ---
   "47": "Premier League",
   "87": "LaLiga",
   "55": "Serie A",
   "54": "Bundesliga",
   "53": "Ligue 1",
+  "132": "Eredivisie",
+  "244": "Primeira Liga",
+  // --- European Club Competitions ---
   "42": "UEFA Champions League",
-  "77": "FIFA World Cup"
+  "73": "UEFA Europa League",
+  "10216": "UEFA Conference League",
+  // --- International ---
+  "77": "FIFA World Cup",
+  "50": "UEFA Euro",
+  "44": "Copa America",
+  "78": "FIFA Club World Cup",
+  "45": "Copa Libertadores",
 };
+
+/**
+ * Return fallback matches filtered by league and status filter.
+ */
+function getFallbackMatches(leagueCode, filter) {
+  const targetLeague = LEAGUE_MAP[leagueCode];
+  let list = FALLBACK_MATCHES;
+  if (leagueCode !== "ALL" && targetLeague) {
+    list = list.filter((m) => m.league === targetLeague);
+  }
+  if (filter === "recent") {
+    return list.filter((m) => m.status === "FINISHED");
+  } else if (filter === "upcoming") {
+    return list.filter((m) => m.status === "SCHEDULED");
+  }
+  return list;
+}
 
 // ── In-memory cache (15-minute TTL) ──
 const cache = new Map();
@@ -152,9 +182,10 @@ app.get("/api/matches", async (req, res) => {
         `https://${API_HOST}/football-get-matches-by-date?date=${yesterdayStr}`,
         { headers }
       );
+      if (yesterdayRes.status === 429) throw new Error("API quota exceeded (429)");
       const yesterdayData = await yesterdayRes.json();
       const rawYesterday = yesterdayData.response?.matches || [];
-      
+
       recentMatches = rawYesterday
         .filter((m) => m.status?.finished)
         .map((m) => formatApiDateMatch(m))
@@ -173,6 +204,7 @@ app.get("/api/matches", async (req, res) => {
           `https://${API_HOST}/football-get-matches-by-date?date=${dStr}`,
           { headers }
         );
+        if (dRes.status === 429) throw new Error("API quota exceeded (429)");
         const dData = await dRes.json();
         const matchesOnDate = dData.response?.matches || [];
 
@@ -200,6 +232,7 @@ app.get("/api/matches", async (req, res) => {
         `https://${API_HOST}/football-get-all-matches-by-league?leagueid=${leagueCode}`,
         { headers }
       );
+      if (leagueRes.status === 429) throw new Error("API quota exceeded (429)");
       const leagueData = await leagueRes.json();
       const rawMatches = leagueData.response?.matches || [];
 
@@ -228,6 +261,7 @@ app.get("/api/matches", async (req, res) => {
             `https://${API_HOST}/football-get-matches-by-date?date=${dStr}`,
             { headers }
           );
+          if (dRes.status === 429) throw new Error("API quota exceeded (429)");
           const dData = await dRes.json();
           const matches = (dData.response?.matches || [])
             .filter((m) => String(m.leagueId) === String(leagueCode) && !m.status?.finished)
@@ -249,7 +283,16 @@ app.get("/api/matches", async (req, res) => {
       result = [...upcomingMatches, ...recentMatches];
     }
 
-    setCache(cacheKey, result);
+    // If API returned no matches (quota exhausted silently), use fallback
+    if (result.length === 0) {
+      console.warn("⚠️ API returned 0 matches — serving fallback data");
+      result = getFallbackMatches(leagueCode, filter);
+    }
+
+    // Only cache non-empty results to avoid locking in empty data
+    if (result.length > 0) {
+      setCache(cacheKey, result);
+    }
     return res.json({
       success: true,
       data: result,
@@ -261,12 +304,29 @@ app.get("/api/matches", async (req, res) => {
       cached: false,
     });
   } catch (err) {
-    console.error("API error:", err.message);
-    return res.status(502).json({ success: false, error: err.message });
+    console.error("API error (serving fallback):", err.message);
+    const fallback = getFallbackMatches(leagueCode, filter);
+    return res.json({
+      success: true,
+      data: fallback,
+      counts: {
+        upcoming: fallback.filter((m) => m.status !== "FINISHED").length,
+        recent: fallback.filter((m) => m.status === "FINISHED").length,
+        total: fallback.length,
+      },
+      fallback: true,
+    });
   }
+});
+
+// Prevent unhandled errors from crashing the server
+process.on("unhandledRejection", (reason) => {
+  console.warn("⚠️ Unhandled Rejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("⚠️ Uncaught Exception:", err);
 });
 
 app.listen(PORT, () => {
   console.log(`⚽ Sports Calendar API server running on http://localhost:${PORT}`);
 });
-

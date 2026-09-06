@@ -38,9 +38,12 @@ export default function FilterBar({ selectedLeague, onLeagueChange, matchFilter 
             <span className="dropdown-selected-inner">
               <img
                 className="league-logo"
-                src={currentLeague?.icon}
+                src={currentLeague?.icon || "/logos/all-leagues.svg"}
                 alt={selectedLeague}
-                onError={(e) => (e.target.style.display = "none")}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/logos/all-leagues.svg";
+                }}
               />
               {selectedLeague}
             </span>
@@ -70,9 +73,12 @@ export default function FilterBar({ selectedLeague, onLeagueChange, matchFilter 
               >
                 <img
                   className="league-logo"
-                  src={LEAGUE_CONFIG[name].icon}
+                  src={LEAGUE_CONFIG[name]?.icon || "/logos/all-leagues.svg"}
                   alt={name}
-                  onError={(e) => (e.target.style.display = "none")}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/logos/all-leagues.svg";
+                  }}
                 />
                 {name}
               </div>
