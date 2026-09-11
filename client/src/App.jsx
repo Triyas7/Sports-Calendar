@@ -1,15 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Sidebar from "./components/Sidebar";
 import MatchList from "./components/MatchList";
 import MatchCreator from "./components/MatchCreator";
 import { useCollection } from "./hooks/useCollection";
 import "./App.css";
 
-/**
- * App — Root layout: Sidebar + Main content area (MatchCreator & Your Collection).
- * Focused on the interactive Match Creator wireframe and personal calendar collection.
- * (Live API fixtures are preserved on the 'backup/sports-calendar-v1' and 'live-fixtures' branches).
- */
 export default function App() {
   const [currentTab, setCurrentTab] = useState("creator");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -20,7 +15,7 @@ export default function App() {
     setCurrentTab(tab);
   }, []);
 
-  const collectionMatches = getCollectionMatches();
+  const collectionMatches = useMemo(() => getCollectionMatches(), [getCollectionMatches]);
 
   return (
     <main className="app-wrapper">

@@ -150,3 +150,65 @@ cd client
 npm run build
 ```
 The compiled bundle will be output to `client/dist/`.
+
+## 🌐 Hosting this application
+
+### Option 1: Single-server deployment (simplest)
+This project is already set up so the Express API can also serve the built frontend.
+
+1. Install dependencies:
+```powershell
+npm install
+npm run install:client
+npm run install:server
+```
+
+2. Build the frontend:
+```powershell
+npm run build
+```
+
+3. Start the production server:
+```powershell
+npm start
+```
+
+4. Open the app at:
+```text
+http://localhost:3001
+```
+
+This works because the backend serves the compiled files from `client/dist` when present.
+
+### Option 2: Separate frontend + backend deployment
+- Frontend: deploy the `client` app to Vercel, Netlify, or Cloudflare Pages.
+- Backend: deploy `server/index.js` to Render, Railway, or a VPS.
+- Set the frontend origin in the backend environment as:
+```env
+CLIENT_URL=https://your-frontend-domain.com
+```
+- Keep `PORT` set by the host platform and use the backend URL in the frontend if needed.
+
+### Recommended production setup
+- Render or Railway for the Express API
+- Vercel for the React frontend
+- Add a `RAPIDAPI_KEY` in the backend environment for live data
+
+### Environment variables
+Create a `.env` file in the `server` folder with:
+```env
+PORT=3001
+RAPIDAPI_KEY=your_key_here
+CLIENT_URL=http://localhost:5173
+```
+
+When deployed publicly, replace `CLIENT_URL` with your actual frontend URL.
+
+### Useful deployment checks
+```powershell
+cd client
+npm run build
+cd ..
+npm start
+```
+If the page loads and the API responds on port `3001`, the build is ready to host.

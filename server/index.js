@@ -6,11 +6,16 @@
  */
 
 require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const clientDistPath = path.join(__dirname, "..", "client", "dist");
 
 // ── RapidAPI Configuration (Loaded from private .env) ──
 const API_FOOTBALL_KEY = process.env.RAPIDAPI_KEY;
@@ -24,26 +29,29 @@ if (!API_FOOTBALL_KEY) {
 const { FALLBACK_MATCHES } = require("./mockData");
 
 const LEAGUE_MAP = {
-  "ALL": "All Leagues",
+  ALL: "All Leagues",
   // --- Club Leagues ---
-  "47": "Premier League",
-  "87": "LaLiga",
-  "55": "Serie A",
-  "54": "Bundesliga",
-  "53": "Ligue 1",
-  "132": "Eredivisie",
-  "244": "Primeira Liga",
+  47: "Premier League",
+  87: "LaLiga",
+  55: "Serie A",
+  54: "Bundesliga",
+  53: "Ligue 1",
+  132: "Eredivisie",
+  244: "Primeira Liga",
   // --- European Club Competitions ---
-  "42": "UEFA Champions League",
-  "73": "UEFA Europa League",
-  "10216": "UEFA Conference League",
+  42: "UEFA Champions League",
+  73: "UEFA Europa League",
+  10216: "UEFA Conference League",
   // --- International ---
-  "77": "FIFA World Cup",
-  "50": "UEFA Euro",
-  "44": "Copa America",
-  "78": "FIFA Club World Cup",
-  "45": "Copa Libertadores",
+  77: "FIFA World Cup",
+  50: "UEFA Euro",
+  44: "Copa America",
+  78: "FIFA Club World Cup",
+  45: "Copa Libertadores",
 };
+
+const VALID_LEAGUES = new Set(Object.keys(LEAGUE_MAP));
+const VALID_FILTERS = new Set(["all", "upcoming", "recent"]);
 
 /**
  * Return fallback matches filtered by league and status filter.
@@ -145,8 +153,56 @@ function formatLeagueMatch(m, leagueName) {
 }
 
 // ── Middleware ──
-app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173"] }));
-app.use(express.json());
+app.disable("x-powered-by");
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: false,
+  })
+);
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: "Too many requests. Please try again later.",
+  },
+});
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Origin not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
+app.use(express.json({ limit: "1mb" }));
+app.use("/api", apiLimiter);
+
+app.get("/health", (_req, res) => {
+  res.json({ success: true, status: "ok" });
+});
+
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+
+  app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+}
 
 // ── Routes ──
 
@@ -154,9 +210,21 @@ app.use(express.json());
  * GET /api/matches?league=ALL|47|87...&filter=all|upcoming|recent
  */
 app.get("/api/matches", async (req, res) => {
-  const leagueCode = req.query.league || "ALL";
-  const filter = req.query.filter || "all"; // "all" | "upcoming" | "recent"
+  const rawLeague = String(req.query.league || "ALL").trim();
+  const rawFilter = String(req.query.filter || "all").trim().toLowerCase();
+  const leagueCode = VALID_LEAGUES.has(rawLeague) ? rawLeague : "ALL";
+  const filter = VALID_FILTERS.has(rawFilter) ? rawFilter : "all";
   const cacheKey = `matches_${leagueCode}_${filter}`;
+
+  if (!API_FOOTBALL_KEY) {
+    const fallback = getFallbackMatches(leagueCode, filter);
+    return res.json({
+      success: true,
+      data: fallback,
+      fallback: true,
+      warning: "API key missing. Serving cached fallback data.",
+    });
+  }
 
   const cached = getCached(cacheKey);
   if (cached) {
@@ -323,10 +391,10 @@ app.get("/api/matches", async (req, res) => {
 process.on("unhandledRejection", (reason) => {
   console.warn("⚠️ Unhandled Rejection:", reason);
 });
-process.on("uncaughtException", (err) => {
-  console.error("⚠️ Uncaught Exception:", err);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`⚽ Sports Calendar API server running on http://localhost:${PORT}`);
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`⚽ Sports Calendar API server running on http://localhost:${PORT}`);
-});
+module.exports = app;
