@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import Sidebar from "./components/Sidebar";
 import MatchList from "./components/MatchList";
 import MatchCreator from "./components/MatchCreator";
@@ -70,6 +71,7 @@ export default function App() {
           </>
         )}
       </section>
+      <Analytics />
     </main>
   );
 }
