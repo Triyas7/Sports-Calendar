@@ -94,4 +94,4 @@ export const LEAGUE_CONFIG = {
 export const LEAGUE_NAMES = Object.keys(LEAGUE_CONFIG);
 
 // Express API proxy base URL
-export const API_BASE_URL = "http://localhost:3001";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
